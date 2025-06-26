@@ -19,3 +19,6 @@ dotnet ef database update
 
 # Client Eureka
 dotnet add package Steeltoe.Discovery.Eureka
+
+# Circuit Breaker
+dotnet add package Microsoft.Extensions.Http.Polly

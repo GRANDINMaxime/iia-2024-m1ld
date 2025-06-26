@@ -20,6 +20,8 @@ import fr.formation.request.CreateOrUpdateProduitRequest;
 import fr.formation.response.CommentaireResponse;
 import fr.formation.response.ProduitByIdResponse;
 import fr.formation.response.ProduitResponse;
+import io.github.resilience4j.bulkhead.BulkheadFullException;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -83,9 +85,15 @@ public class ProduitApiController {
     }
     
     @GetMapping("/{id}/is-notable")
+    @Bulkhead(name = "produitsService", fallbackMethod = "isNotableByIdBulkheadFallback")
     public boolean isNotableById(@PathVariable String id) {
         return this.repository.findById(id).orElseThrow(ProduitNotFoundException::new).isNotable();
     }
+
+    public boolean isNotableByIdBulkheadFallback(String id, BulkheadFullException e) {
+        return false;
+    }
+
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

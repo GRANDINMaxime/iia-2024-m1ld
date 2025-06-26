@@ -2,6 +2,7 @@ using commentaire_service.Context;
 using commentaire_service.Controllers.Request;
 using commentaire_service.Models;
 using Microsoft.AspNetCore.Mvc;
+using Polly;
 
 namespace commentaire_service.Controllers;
 
@@ -25,7 +26,14 @@ public class CommentaireApiController : ControllerBase
     {
         Commentaire commentaire = this._commentaireContext.Commentaires.First(c => c.Id == id);
         HttpClient httpClient = this._httpClientFactory.CreateClient("produit-service");
-        string produitNom = await httpClient.GetStringAsync("/api/produit/" + commentaire.ProduitId + "/get-name");
+
+        var fallbackForAnyException = Policy<string>
+            .Handle<Exception>()
+            .FallbackAsync(async (ct) => "No name");
+
+        string produitNom = await fallbackForAnyException.ExecuteAsync(async () => {
+            return await httpClient.GetStringAsync("/api/produit/" + commentaire.ProduitId + "/get-name");
+        });
 
         CommentaireResponse response = new CommentaireResponse
         {
@@ -67,9 +75,17 @@ public class CommentaireApiController : ControllerBase
     public async Task<IActionResult> Add([FromBody] CommentaireRequest request)
     {
         HttpClient httpClient = this._httpClientFactory.CreateClient("produit-service");
-        bool isProduitNotable = await httpClient.GetFromJsonAsync<bool>("/api/produit/" + request.ProduitId + "/is-notable");
         
-        if (!isProduitNotable) {
+        var fallbackForAnyException = Policy<bool>
+            .Handle<Exception>()
+            .FallbackAsync(async (ct) => false);
+
+        bool isProduitNotable = await fallbackForAnyException.ExecuteAsync(async () => {
+            return await httpClient.GetFromJsonAsync<bool>("/api/produit/" + request.ProduitId + "/is-notable");
+        });
+        
+        if (!isProduitNotable)
+        {
             return BadRequest(false);
         }
 
