@@ -1,0 +1,40 @@
+version: '3.8'
+
+networks:
+  microservices-net:
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: mon_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Not24Get
+      POSTGRES_DB: services
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data_services:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+  postgres_commentaire:
+    image: postgres:16
+    container_name: postgres_commentaire
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Not24Get
+      POSTGRES_DB: commentaire
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data_commentaire:/var/lib/postgresql/data
+    command: ["postgres", "-c", "listen_addresses=*"]
+    networks:
+      - microservices-net
+
+volumes:
+  db_data_services:
+  db_data_commentaire:
