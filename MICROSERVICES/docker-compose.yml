@@ -35,6 +35,13 @@ services:
     networks:
       - microservices-net
 
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    hostname: rabbit
+
 volumes:
   db_data_services:
   db_data_commentaire:
