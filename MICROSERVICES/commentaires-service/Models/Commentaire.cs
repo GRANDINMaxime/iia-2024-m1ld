@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using commentaire_service.Models.Enums;
 
 namespace commentaire_service.Models;
 
@@ -11,6 +12,9 @@ public class Commentaire
     [Key]
     [Column("id")]
     public string Id { get; set; }
+
+    [Column("etat")]
+    public CommentaireEtat Etat { get; set; }
 
     [Column("texte")]
     public string Texte { get; set; } = "";

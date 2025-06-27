@@ -9,6 +9,8 @@ builder.Services.UseDbContextConfiguration(builder.Configuration.GetConnectionSt
 builder.Services.UseEurekaConfiguration();
 builder.Services.UseHttpConfiguration("produit-service", "lb://produit-service");
 
+builder.Services.UseRabbitConfiguration(builder.Configuration);
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
